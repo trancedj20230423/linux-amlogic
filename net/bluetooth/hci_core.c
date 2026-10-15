@@ -811,6 +811,7 @@ static int hci_init3_req(struct hci_request *req, unsigned long opt)
 static int hci_init4_req(struct hci_request *req, unsigned long opt)
 {
 	struct hci_dev *hdev = req->hdev;
+	int err = 0; /* 修复编译错误：声明 err 变量 */
 
 	/* Some Broadcom based Bluetooth controllers do not support the
 	 * Delete Stored Link Key command. They are clearly indicating its
@@ -895,6 +896,12 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
 	}
 
 	/* Set Default PHY parameters if command is supported */
+	/* 
+	 * 修复 MT7663 蓝牙初始化失败：
+	 * MT7663 芯片错误地声称支持 HCI_OP_LE_SET_DEFAULT_PHY 指令，
+	 * 但实际上无法响应，导致初始化超时。
+	 * 因此需要禁用或跳过此指令的发送。
+	 */
 	/*
 	if (hdev->commands[35] & 0x20) {
 		struct hci_cp_le_set_default_phy cp;
@@ -904,9 +911,11 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
 		cp.rx_phys = hdev->le_rx_def_phys;
 
 		hci_req_add(req, HCI_OP_LE_SET_DEFAULT_PHY, sizeof(cp), &cp);
-	}
 
-	return 0;
+	}
+	*/
+
+	return err;
 }
 
 static int __hci_init(struct hci_dev *hdev)
