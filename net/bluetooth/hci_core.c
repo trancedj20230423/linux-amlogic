@@ -903,6 +903,7 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
 	 * 因此需要禁用或跳过此指令的发送。
 	 */
 	/*
+#if 0
 	if (hdev->commands[35] & 0x20) {
 		struct hci_cp_le_set_default_phy cp;
 
@@ -911,11 +912,10 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
 		cp.rx_phys = hdev->le_rx_def_phys;
 
 		hci_req_add(req, HCI_OP_LE_SET_DEFAULT_PHY, sizeof(cp), &cp);
-
 	}
-	*/
+#endif
 
-	return err;
+	return 0;
 }
 
 static int __hci_init(struct hci_dev *hdev)
