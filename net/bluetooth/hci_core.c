@@ -844,9 +844,17 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
 		hci_req_add(req, HCI_OP_READ_LOCAL_CODECS, 0, NULL);
 
 	/* Read local pairing options if the HCI command is supported */
+	/*
+	 * 修复 MT7663 蓝牙初始化失败：
+	 * MT7663 芯片错误地声称支持 HCI_OP_READ_LOCAL_PAIRING_OPTS (0x100c)，
+	 * 但实际返回 status 0x01（未知 HCI 命令），
+	 * 导致 __hci_init() 返回 -56，hci_dev_do_open 失败。
+	 * 因此需要跳过此指令的发送。
+	 */
+#if 0	
 	if (hdev->commands[41] & 0x08)
 		hci_req_add(req, HCI_OP_READ_LOCAL_PAIRING_OPTS, 0, NULL);
-
+#endif
 	/* Get MWS transport configuration if the HCI command is supported */
 	if (hdev->commands[30] & 0x08)
 		hci_req_add(req, HCI_OP_GET_MWS_TRANSPORT_CONFIG, 0, NULL);
